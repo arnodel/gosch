@@ -59,3 +59,11 @@ func isDigit(r rune) bool {
 func isHexDigit(r rune) bool {
 	return isDigit(r) || (r >= 'a' && r <= 'f') || (r >= 'A' && r <= 'F')
 }
+
+func isOctalDigit(r rune) bool {
+	return r >= '0' && r <= '7'
+}
+
+func isBinaryDigit(r rune) bool {
+	return r == '0' || r == '1'
+}

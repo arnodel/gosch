@@ -1,5 +1,7 @@
 package scanner
 
+import "unicode"
+
 func scanToken(l *Scanner) stateFn {
 	switch c := l.next(); {
 	case isInitial(c):
@@ -69,7 +71,7 @@ func scanToken(l *Scanner) stateFn {
 			l.emit(EOF)
 			return nil
 		default:
-			return l.errorf("Illegal character")
+			return l.errorf("illegal character")
 		}
 	}
 	return scanToken
@@ -86,7 +88,7 @@ func scanIdentifierSubsequent(l *Scanner) stateFn {
 		tp = TokIdentifier
 	}
 	l.emit(tp)
-	return checkDelimiter(l)
+	return checkDelimiter
 }
 
 var identifierExceptions = map[string]Type{
@@ -140,6 +142,9 @@ func scanHashToken(l *Scanner) stateFn {
 		l.emit(TokOpenVec)
 	case ';':
 		l.emit(TokCommentDatum)
+	case 'x', 'd', 'b', 'o', 'i', 'e':
+		l.backup()
+		return scanNumber
 	default:
 		if !isInitial(c) {
 			return l.errorf("invalid character following #")
@@ -161,6 +166,10 @@ func scanHashToken(l *Scanner) stateFn {
 		}
 	}
 	return scanToken
+}
+
+func scanNumber(l *Scanner) stateFn {
+	panic("unimplemented")
 }
 
 func scanNestedComment(l *Scanner) stateFn {
@@ -253,6 +262,16 @@ func accept(l *Scanner, p runePredicate, max int) int {
 		}
 	}
 	return max
+}
+
+func acceptSeqCI(l *Scanner, seq string) int {
+	for i, c := range seq {
+		if unicode.ToLower(l.next()) != c {
+			l.backup()
+			return i
+		}
+	}
+	return len(seq)
 }
 
 func acceptCharEscape(l *Scanner, delim rune, multiline bool) bool {

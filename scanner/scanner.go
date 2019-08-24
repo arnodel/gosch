@@ -110,11 +110,13 @@ func (l *Scanner) accept(valid string) bool {
 // by passing back a nil pointer that will be the next
 // state, terminating l.run.
 func (l *Scanner) errorf(format string, args ...interface{}) stateFn {
-	l.errorMsg = fmt.Sprintf(format, args...)
-	l.items <- &Token{
-		Type: INVALID,
-		Lit:  l.lit(),
-		Pos:  l.start,
+	if l.errorMsg == "" {
+		l.errorMsg = fmt.Sprintf(format, args...)
+		l.items <- &Token{
+			Type: INVALID,
+			Lit:  l.lit(),
+			Pos:  l.start,
+		}
 	}
 	return nil
 }
