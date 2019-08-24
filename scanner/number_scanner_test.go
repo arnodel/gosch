@@ -119,12 +119,18 @@ func Test_numberScanner_scanComplex(t *testing.T) {
 			'o',
 			"invalid fraction",
 		},
-		// {
-		// 	"+i",
-		// 	"+i",
-		// 	'd',
-		// 	"",
-		// },
+		{
+			"fraction without numerator",
+			"/12",
+			'd',
+			"invalid number",
+		},
+		{
+			"+i",
+			"+i",
+			'd',
+			"",
+		},
 		{
 			"2i",
 			"2i",
@@ -147,6 +153,30 @@ func Test_numberScanner_scanComplex(t *testing.T) {
 			"inf",
 			"-inf.0",
 			'b',
+			"",
+		},
+		{
+			"something that starts like inf",
+			"+in2",
+			'd',
+			"invalid number",
+		},
+		{
+			"infi",
+			"+inf.0i",
+			'd',
+			"",
+		},
+		{
+			"img inf",
+			"2/3+inf.0i",
+			'd',
+			"",
+		},
+		{
+			"img i",
+			"5-i",
+			'd',
 			"",
 		},
 		// TODO: Add test cases.

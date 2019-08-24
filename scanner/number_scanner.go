@@ -51,10 +51,7 @@ func (n *numberScanner) scanI(l *Scanner) stateFn {
 }
 
 func (n *numberScanner) scanComplex(l *Scanner) stateFn {
-	if l.peek() == 'i' {
-		return n.scanI
-	}
-	ok, _ := n.realOrI(l)
+	ok, i := n.realOrI(l)
 	if ok {
 		switch l.next() {
 		case '+', '-':
@@ -77,7 +74,7 @@ func (n *numberScanner) scanComplex(l *Scanner) stateFn {
 	if n.foundError {
 		return nil
 	}
-	if !ok {
+	if !ok && !i {
 		return l.errorf("invalid number")
 	}
 	l.emit(TokNum)
@@ -99,11 +96,6 @@ func (n *numberScanner) realOrI(l *Scanner) (bool, bool) {
 	}
 	l.backup()
 	return n.ureal(l), false
-}
-
-func (n *numberScanner) uinfnan(l *Scanner) bool {
-	uinfnan, _ := n.uinfnanOrI(l)
-	return uinfnan
 }
 
 func (n *numberScanner) uinfnanOrI(l *Scanner) (bool, bool) {
