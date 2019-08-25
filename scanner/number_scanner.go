@@ -43,26 +43,18 @@ func (n *numberScanner) uinteger(l *Scanner) bool {
 	return dc > 0
 }
 
-func (n *numberScanner) scanI(l *Scanner) stateFn {
-	if unicode.ToLower(l.next()) != 'i' {
-		return l.errorf("expected i")
-	}
-	return checkDelimiter
-}
-
 func (n *numberScanner) scanComplex(l *Scanner) stateFn {
 	ok, i := n.realOrI(l)
 	if ok {
 		switch l.next() {
 		case '+', '-':
-			if n.ureal(l) {
-				return n.scanI
+			img := n.ureal(l)
+			if !img {
+				img, ok = n.uinfnanOrI(l)
 			}
-			uinfnan, i := n.uinfnanOrI(l)
-			if uinfnan {
-				return n.scanI
+			if img {
+				ok = unicode.ToLower(l.next()) == 'i'
 			}
-			ok = i
 		case '@':
 			ok = n.real(l)
 		case 'i':
@@ -148,15 +140,16 @@ func (n *numberScanner) decimal(l *Scanner, startsWithNumber bool) bool {
 	if n.radix != 'd' {
 		return false
 	}
-	numberAfterDot := true
-	if l.next() == '.' {
+	numberAfterDot := false
+	c := l.next()
+	if c == '.' {
 		numberAfterDot = n.uinteger(l)
+		if !numberAfterDot && !startsWithNumber {
+			return false
+		}
+		c = l.next()
 	}
-	if !startsWithNumber && !numberAfterDot {
-		l.backup()
-		return false
-	}
-	if unicode.ToLower(l.next()) != 'e' {
+	if c != 'e' && c != 'E' {
 		l.backup()
 		return true
 	}

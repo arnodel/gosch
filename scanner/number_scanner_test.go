@@ -108,6 +108,12 @@ func Test_numberScanner_scanComplex(t *testing.T) {
 			"invalid exponent",
 		},
 		{
+			"integer with exponent",
+			"-1e6",
+			'd',
+			"",
+		},
+		{
 			"binary decimal (invalid)",
 			"1.1",
 			'b',

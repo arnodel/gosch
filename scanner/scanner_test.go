@@ -150,6 +150,18 @@ func TestScanner(t *testing.T) {
 			},
 			"",
 		},
+		{
+			"12.4 -1e6 #xff+abi #b1001 #o321",
+			[]tok{
+				{TokNum, "12.4", 0, 1, 1},
+				{TokNum, "-1e6", 5, 1, 6},
+				{TokNum, "#xff+abi", 10, 1, 11},
+				{TokNum, "#b1001", 19, 1, 20},
+				{TokNum, "#o321", 26, 1, 27},
+				{EOF, "", 31, 1, 32},
+			},
+			"",
+		},
 	}
 	for i, test := range tests {
 		name := fmt.Sprintf("Test %d", i+1)

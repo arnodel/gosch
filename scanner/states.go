@@ -8,6 +8,9 @@ func scanToken(l *Scanner) stateFn {
 		return scanIdentifierSubsequent
 	case isWhitespace(c):
 		l.ignore()
+	case isDigit(c):
+		l.backup()
+		return newNumberScanner('d').scanComplex
 	default:
 		switch c {
 		case '|':
@@ -64,6 +67,8 @@ func scanToken(l *Scanner) stateFn {
 				fallthrough
 			case isSignSubsequent(c):
 				return scanIdentifierSubsequent
+			case isDigit(c):
+				return newNumberScanner('d').scanComplex
 			default:
 				return l.errorf("invalid character after '%c'", c)
 			}
@@ -169,7 +174,34 @@ func scanHashToken(l *Scanner) stateFn {
 }
 
 func scanNumber(l *Scanner) stateFn {
-	panic("unimplemented")
+	radix := 'd'
+	haveRadix := true
+	switch c := l.next(); c {
+	case 'x', 'd', 'b', 'o':
+		radix = c
+	case 'i', 'e':
+		haveRadix = false
+	default:
+		return l.errorf("invalid prefix")
+	}
+	if l.next() == '#' {
+		switch c := l.next(); c {
+		case 'x', 'd', 'b', 'o':
+			if haveRadix {
+				return l.errorf("invalid prefix")
+			}
+			radix = c
+		case 'i', 'e':
+			if !haveRadix {
+				return l.errorf("invalid prefix")
+			}
+		default:
+			return l.errorf("invalid prefix")
+		}
+	} else {
+		l.backup()
+	}
+	return newNumberScanner(radix).scanComplex
 }
 
 func scanNestedComment(l *Scanner) stateFn {
