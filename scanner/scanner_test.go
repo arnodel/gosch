@@ -131,6 +131,15 @@ func TestScanner(t *testing.T) {
 			"",
 		},
 		{
+			`#\xff #\backspace #\b1`,
+			[]tok{
+				{TokCharacter, `#\xff`, 0, 1, 1},
+				{TokCharacter, `#\backspace`, 6, 1, 7},
+				{INVALID, `#\b1`, 18, 1, 19},
+			},
+			"invalid character",
+		},
+		{
 			`a #|b#||||#  |#x`,
 			[]tok{
 				{TokIdentifier, `a`, 0, 1, 1},
@@ -159,6 +168,30 @@ func TestScanner(t *testing.T) {
 				{TokNum, "#b1001", 19, 1, 20},
 				{TokNum, "#o321", 26, 1, 27},
 				{EOF, "", 31, 1, 32},
+			},
+			"",
+		},
+		{
+			"#i12 #x#Iff #e#B101 #b#x10",
+			[]tok{
+				{TokNum, "#i12", 0, 1, 1},
+				{TokNum, "#x#Iff", 5, 1, 6},
+				{TokNum, "#e#B101", 12, 1, 13},
+				{INVALID, "#b#x", 20, 1, 21},
+			},
+			"invalid prefix",
+		},
+		{
+			"('a ,,@#()",
+			[]tok{
+				{TokOpenParen, "(", 0, 1, 1},
+				{TokQuote, "'", 1, 1, 2},
+				{TokIdentifier, "a", 2, 1, 3},
+				{TokComma, ",", 4, 1, 5},
+				{TokCommaAt, ",@", 5, 1, 6},
+				{TokOpenVec, "#(", 7, 1, 8},
+				{TokCloseParen, ")", 9, 1, 10},
+				{EOF, "", 10, 1, 11},
 			},
 			"",
 		},

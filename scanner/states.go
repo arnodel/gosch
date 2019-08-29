@@ -176,7 +176,7 @@ func scanHashToken(l *Scanner) stateFn {
 func scanNumber(l *Scanner) stateFn {
 	radix := 'd'
 	haveRadix := true
-	switch c := l.next(); c {
+	switch c := l.next(); unicode.ToLower(c) {
 	case 'x', 'd', 'b', 'o':
 		radix = c
 	case 'i', 'e':
@@ -185,7 +185,7 @@ func scanNumber(l *Scanner) stateFn {
 		return l.errorf("invalid prefix")
 	}
 	if l.next() == '#' {
-		switch c := l.next(); c {
+		switch c := l.next(); unicode.ToLower(c) {
 		case 'x', 'd', 'b', 'o':
 			if haveRadix {
 				return l.errorf("invalid prefix")
@@ -255,8 +255,8 @@ func scanCharacter(l *Scanner) stateFn {
 		return scanToken
 	case (c == 'x' || c == 'X') && isHexDigit(d):
 		accept(l, isHexDigit, -1)
-	case isInitial(c) && isSubsequent(d):
-		accept(l, isSubsequent, -1)
+	case isLetter(c) && isLetter(d):
+		accept(l, isLetter, -1)
 	default:
 		return l.errorf("invalid character")
 	}
